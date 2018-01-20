@@ -23,8 +23,8 @@ var WIDTH = params.w || 6;
 var HEIGHT = params.h || 5;
 var SEED = parseInt(params.s) || 42;
 
-var BOOM_LO = 10;
-var BOOM_HI = 20;
+var BOOM_LO = parseInt(params.lo) || 10;
+var BOOM_HI = parseInt(params.hi) || 20;
 
 var boomAudio = new Audio('Bomb-SoundBible.com-337640242.wav');
 var safeAudio = new Audio('Video_Game_Splash-Ploor-699235037.wav');
