@@ -1,0 +1,64 @@
+<meta charset="utf-8" />
+<style>
+input {position: absolute; left: -1000px; top: -1000px;}
+label { display: inline-block; width: 100px; height: 100px; border: 1px solid black; }
+input.safe + label { background: green; }
+input.boom + label { background: red; }
+</style>
+<body>
+<script>
+var WIDTH = 6;
+var HEIGHT = 5;
+var SEED = 42;
+
+var BOOM_LO = 10;
+var BOOM_HI = 20;
+
+var boomAudio = new Audio('Bomb-SoundBible.com-337640242.wav');
+var safeAudio = new Audio('Video_Game_Splash-Ploor-699235037.wav');
+
+var positions = [];
+function random() {
+    var x = Math.sin(SEED++) * 10000;
+    return x - Math.floor(x);
+}
+var rank = [];
+for (var i = 0; i < HEIGHT; ++i) {
+	rank.push([]);
+	for (var j = 0; j < WIDTH; ++j) {
+		rank[i].push(-1);
+		positions.push([i, j, random()]);
+	}
+}
+positions.sort(function cmp(a, b) { return a[2] - b[2]; });
+for (var i = 0; i < positions.length; ++i)
+	rank[positions[i][0]][positions[i][1]] = i;
+//console.log(JSON.stringify(positions));
+
+var BOOM = (random() * (BOOM_HI - BOOM_LO + 1) + BOOM_LO)|0;
+//console.log(BOOM);
+
+function chk_click(i, j) {
+	if (rank[i][j] < BOOM) {
+		this.className = 'boom';
+		boomAudio.play();
+	} else {
+		this.className = 'safe';
+		safeAudio.play();
+	}
+}
+
+for (var i = 0; i < HEIGHT; ++i) {
+	for (var j = 0; j < WIDTH; ++j) {
+		var chk = document.createElement('input');
+		chk.type = 'checkbox';
+		chk.addEventListener('click', chk_click.bind(chk, i, j), false);
+		var lbl = document.createElement('label');
+		chk.id = 'chk' + i + '-' + j;
+		lbl.setAttribute('for', chk.id);
+		document.body.appendChild(chk);
+		document.body.appendChild(lbl);
+	}
+	document.body.appendChild(document.createElement('br'));
+}
+</script>
