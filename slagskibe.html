@@ -7,9 +7,21 @@ input.boom + label { background: red; }
 </style>
 <body>
 <script>
-var WIDTH = 6;
-var HEIGHT = 5;
-var SEED = 42;
+function get_params() {
+	var query = location.search.substring(1).split('&');
+	var res = {};
+	for (var i = 0; i < query.length; ++i) {
+		var pair = query[i].split('=');
+		res[pair[0]] = pair[1];
+	}
+	return res;
+}
+
+var params = get_params();
+
+var WIDTH = params.w || 6;
+var HEIGHT = params.h || 5;
+var SEED = parseInt(params.s) || 42;
 
 var BOOM_LO = 10;
 var BOOM_HI = 20;
