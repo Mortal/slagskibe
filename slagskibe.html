@@ -20,8 +20,8 @@ function get_params() {
 
 var params = get_params();
 
-var WIDTH = params.w || 6;
-var HEIGHT = params.h || 5;
+var WIDTH = parseInt(params.w) || 6;
+var HEIGHT = parseInt(params.h) || 5;
 var SEED = parseInt(params.s) || 42;
 
 var BOOM_LO = parseInt(params.lo) || 10;
