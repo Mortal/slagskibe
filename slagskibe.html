@@ -32,26 +32,73 @@ var BOOM_HI = parseInt(params.hi) || 20;
 var boomAudio = new Audio('Bomb-SoundBible.com-337640242.wav');
 var safeAudio = new Audio('Video_Game_Splash-Ploor-699235037.wav');
 
-var positions = [];
+// Return next random number in [0, 1).
 function random() {
-    var x = Math.sin(SEED++) * 10000;
-    return x - Math.floor(x);
+	// Math.sin is not that random, but oh well.
+	var x = Math.sin(SEED++) * 10000;
+	return x - Math.floor(x);
 }
-var rank = [];
-for (var i = 0; i < HEIGHT; ++i) {
-	rank.push([]);
-	for (var j = 0; j < WIDTH; ++j) {
-		rank[i].push(-1);
-		positions.push([i, j, random()]);
+
+// Return a random n x m matrix with values in [0, 1).
+function random_matrix(n, m) {
+	var result = [];
+	for (var i = 0; i < n; ++i) {
+		result.push([]);
+		for (var j = 0; j < m; ++j) {
+			result[i].push(random());
+		}
+	}
+	return result;
+}
+
+// Given n x m matrix, return n x m matrix where entry [i][j] is rank
+// (i.e. number of entries less than given entry).
+function compress_matrix(matrix) {
+	var positions = [];
+	for (var i = 0; i < matrix.length; i++) {
+		for (var j = 0; j < matrix[i].length; j++) {
+			positions.push([i, j, matrix[i][j]]);
+		}
+	}
+	positions.sort(function cmp(a, b) { return a[2] - b[2]; });
+
+	var rank = [];
+	for (var i = 0; i < matrix.length; i++) {
+		rank.push([]);
+		for (var j = 0; j < matrix[i].length; j++) {
+			rank[i].push(-1);
+		}
+	}
+
+	for (var n = 0; n < positions.length; n++) {
+		var i = positions[n][0];
+		var j = positions[n][1];
+		rank[i][j] = n;
+	}
+	return rank;
+}
+
+// Create an n x m matrix in the DOM using <input type=checkbox><label>
+// as cells, with each checkbox calling onclick.bind(chk, i, j) on click.
+function make_label_matrix(parentElement, onclick, n, m) {
+	for (var i = 0; i < n; ++i) {
+		for (var j = 0; j < m; ++j) {
+			var chk = document.createElement('input');
+			chk.type = 'checkbox';
+			chk.addEventListener('click', onclick.bind(chk, i, j), false);
+			var lbl = document.createElement('label');
+			chk.id = 'chk' + i + '-' + j;
+			lbl.setAttribute('for', chk.id);
+			parentElement.appendChild(chk);
+			parentElement.appendChild(lbl);
+		}
+		parentElement.appendChild(document.createElement('br'));
 	}
 }
-positions.sort(function cmp(a, b) { return a[2] - b[2]; });
-for (var i = 0; i < positions.length; ++i)
-	rank[positions[i][0]][positions[i][1]] = i;
-//console.log(JSON.stringify(positions));
+
+var rank = compress_matrix(random_matrix(HEIGHT, WIDTH));
 
 var BOOM = (random() * (BOOM_HI - BOOM_LO + 1) + BOOM_LO)|0;
-//console.log(BOOM);
 
 function chk_click(i, j) {
 	if (rank[i][j] < BOOM) {
@@ -63,17 +110,6 @@ function chk_click(i, j) {
 	}
 }
 
-for (var i = 0; i < HEIGHT; ++i) {
-	for (var j = 0; j < WIDTH; ++j) {
-		var chk = document.createElement('input');
-		chk.type = 'checkbox';
-		chk.addEventListener('click', chk_click.bind(chk, i, j), false);
-		var lbl = document.createElement('label');
-		chk.id = 'chk' + i + '-' + j;
-		lbl.setAttribute('for', chk.id);
-		document.body.appendChild(chk);
-		document.body.appendChild(lbl);
-	}
-	document.body.appendChild(document.createElement('br'));
-}
+make_label_matrix(document.body, chk_click, HEIGHT, WIDTH);
+
 </script>
